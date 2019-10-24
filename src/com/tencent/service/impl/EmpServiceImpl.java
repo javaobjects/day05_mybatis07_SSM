@@ -23,7 +23,7 @@ public class EmpServiceImpl implements IEmpService {
 		return emp;
 	}
 
-	@Transactional(rollbackForClassName = {"java.lang.Exception"})
+//	@Transactional(rollbackForClassName = {"java.lang.Exception"})
 	@Override
 	public boolean transfer(int outEmpno, int inEmpno, double money) {
 		//1. 转出之前判断余额是否充足
