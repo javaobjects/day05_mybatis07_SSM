@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	   xmlns:context="http://www.springframework.org/schema/context"
+	   xmlns:aop="http://www.springframework.org/schema/aop"
+	   xmlns:mvc="http://www.springframework.org/schema/mvc"
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xsi:schemaLocation="http://www.springframework.org/schema/beans 
+	                       http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+	                       http://www.springframework.org/schema/context
+	                       http://www.springframework.org/schema/context/spring-context-4.1.xsd
+	                       http://www.springframework.org/schema/aop
+	                       http://www.springframework.org/schema/aop/spring-aop-4.1.xsd
+	                       http://www.springframework.org/schema/mvc
+	                       http://www.springframework.org/schema/mvc/spring-mvc-4.1.xsd">
+
+       <!-- 
+        	//1.获取SqlSessionFactory接口============spring管理为单例模式
+			SqlSessionFactory factory = new SqlSessionFactoryBuilder().build(Resources.getResourceAsStream("sqlMapConfig.xml"));
+			
+			//2.获取EmpDao==========================spring管理为单例模式
+			IEmpDao empDao = new EmpDaoImpl(factory);
+			
+			//3.调用查询=====不需要spring管理，使用时才调用
+			Emp emp = empDao.selectEmpByEmpno(7788);
+			System.out.println(emp);
+         -->     
+         <!-- 1. 加载外部配置文档 -->
+         <context:property-placeholder location="classpath:db.properties"/>
+         
+         <!-- 2. 配置数据源 -->
+         <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource">
+         		<property name="driverClassName" value="${jdbc.driverClassName}"></property>
+         		<property name="url" value="${jdbc.url}"></property>
+         		<property name="username" value="${jdbc.username}"></property>
+         		<property name="password" value="${jdbc.password}"></property>
+         </bean>
+         
+         <!-- 3. 配置SqlSessionFactory -->   
+         <bean id="factory" class="org.mybatis.spring.SqlSessionFactoryBean">
+         		<property name="dataSource" ref="dataSource"></property>                      <!-- 数据源 -->
+         		<property name="configLocation" value="classpath:sqlMapConfig.xml"></property><!-- mybatis核心配置文件 -->
+         </bean>
+                
+         <!-- 3.1 配置SqlSessionTemplate,可省略-->
+         <bean id="sqlSessionTemplate" class="org.mybatis.spring.SqlSessionTemplate">
+         	 	<constructor-arg ref="factory"></constructor-arg>
+         </bean>       
+         <!-- 4. 管理DAO（原始DAO开发方式） -->          
+	 <!--     <bean id="empDao" class="com.tencent.dao.EmpDaoImpl">
+	     	<constructor-arg index="0" ref="factory"/>
+	     </bean>  -->
+	     <!-- 4.1管理DAO（mapper代理开发方式） -->
+	   <!--   <bean id="empMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
+	     		基于接口生成代理对象的接口
+	     		<property name="mapperInterface" value="com.tencent.dao.EmpMapper"></property>
+	     		数据库SqlSessionFactory
+	     		<property name="sqlSessionTemplate" ref="sqlSessionTemplate"></property>
+	     </bean> -->
+	     <!-- 4.2 管理DAO(mapper代理开发方式 批量管理bean) -->
+	     <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+	     		<!-- 指定mapper接口所在的包名，多个包名之间逗号或分号分隔，默认的引用名称为
+	     		接口名首字母小写，例如EmpMapper.java引用 -->
+	     		<property name="basePackage" value="com.tencent.dao"></property>
+	     		<!-- 数据库SqlSessionFactory可省略底层自动装配 -->
+	     		<!-- <property name="sqlSessionTemplateBeanName" value="sqlSessionTemplate"></property> -->
+	     </bean>
+				 
+</beans>
