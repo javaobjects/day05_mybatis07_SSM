@@ -27,4 +27,15 @@ public class EmpController {
 		
 		return "index";
 	}
+	
+	@RequestMapping("/transfer")
+	public String transfer(Model model,Integer outEmpno,Integer inEmpno,Double money) {
+		//1. 调用service方法，完成转账
+		boolean result = empService.transfer(outEmpno, inEmpno, money);
+		
+		//2. 将转账结果保存到request作用域
+		model.addAttribute("result","【" + outEmpno + "】向" + inEmpno + "】转账【" + money + "】块钱" + result );
+		
+		return "index";
+	}
 }

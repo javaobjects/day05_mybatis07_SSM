@@ -6,4 +6,7 @@
 		select * from emp where empno = #{empno}
 	</select>
 	
+	<update id="updateEmpSal" parameterType="com.tencent.pojo.Emp">
+		update emp set sal = sal +　#{sal} where empno = #{empno}
+	</update>
 </mapper>
